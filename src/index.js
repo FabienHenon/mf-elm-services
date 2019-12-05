@@ -1,4 +1,4 @@
-export default function (app) {
+export const initMaestroPorts = (app) => {
   // Listen to a maestro event
   app.ports.portAddEventListener && app.ports.portAddEventListener.subscribe(function ({ eventName }) {
     options.events.on(eventName, function (payload) {
@@ -22,4 +22,4 @@ export default function (app) {
     console.log("Navigation unblocked")
     options.navigation.unblockNavigation();
   });
-}
+};
