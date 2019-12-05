@@ -1,0 +1,19 @@
+{
+  "name": "mf-elm-services",
+  "version": "1.0.0",
+  "description": "Elm services (ports) to be used with micro frontends within the maestro",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calions-app/mf-elm-services.git"
+  },
+  "author": "Calions",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/calions-app/mf-elm-services/issues"
+  },
+  "homepage": "https://github.com/calions-app/mf-elm-services#readme"
+}
