@@ -21,7 +21,7 @@ Import the ports to your JS code after initializing the Elm application:
 
 ```js
 import Elm from './components/Main.elm';
-import { initMaestroPorts } from 'mf-elm-services';
+import { initMaestroPorts } from 'mf-elm-services/src/index.js';
 
 function start(appNode, params, options) {
   console.log(`%cstarting ${options.groupRef}`, "color:violet", params, options);
@@ -42,7 +42,7 @@ function start(appNode, params, options) {
     app.ports.portOnLanguagesChange.send(navigator.languages || []);
   });
 
-  initMaestroPorts(app);
+  initMaestroPorts(app, options);
 }
 
 function stop(appNode, options) {

@@ -1,4 +1,4 @@
-export const initMaestroPorts = (app) => {
+export const initMaestroPorts = (app, options) => {
   // Listen to a maestro event
   app.ports.portAddEventListener && app.ports.portAddEventListener.subscribe(function ({ eventName }) {
     options.events.on(eventName, function (payload) {
