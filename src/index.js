@@ -13,13 +13,11 @@ export const initMaestroPorts = (app, options) => {
 
   // Blocks the maestro navigation
   app.ports.portBlockNavigation && app.ports.portBlockNavigation.subscribe(function (_) {
-    console.log("Navigation blocked")
     options.navigation.blockNavigation();
   });
 
   // Unblock the maestro navigation
   app.ports.portUnblockNavigation && app.ports.portUnblockNavigation.subscribe(function (_) {
-    console.log("Navigation unblocked")
     options.navigation.unblockNavigation();
   });
 };
