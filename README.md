@@ -21,7 +21,7 @@ Import the ports to your JS code after initializing the Elm application:
 
 ```js
 import Elm from './components/Main.elm';
-import { initMaestroPorts } from 'mf-elm-services/src/index.js';
+import { initMaestroPorts, makeComponentConfig } from 'mf-elm-services/src/index.js';
 
 function start(appNode, params, options) {
   console.log(`%cstarting ${options.groupRef}`, "color:violet", params, options);
@@ -33,7 +33,8 @@ function start(appNode, params, options) {
       seed: new Date().getTime(),
       languages: navigator.languages || [],
       apiBaseUrl: process.env.API_BASE_URL,
-      domainName: 'micro-frontend-domain'
+      domainName: 'micro-frontend-domain',
+      config: makeComponentConfig(params)
     }
   });
 
