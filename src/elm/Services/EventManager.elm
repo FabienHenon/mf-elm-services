@@ -7,6 +7,7 @@ port module Services.EventManager exposing
     , StateName
     , emit
     , listen
+    , makeCustomEventName
     , makeEventName
     , noPayload
     , onEvent
@@ -46,6 +47,11 @@ type alias EventPayload =
 
 type EventName
     = EventName String
+
+
+makeCustomEventName : String -> EventName
+makeCustomEventName =
+    EventName
 
 
 makeEventName : Config a -> EntityName -> StateName -> EventName
