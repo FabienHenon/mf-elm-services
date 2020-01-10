@@ -4,8 +4,9 @@ Elm services to be used in micro frontends within the maestro
 
 It contains the following modules:
 
-* `EventManager`: to emit and listen for maestro events
-* `Navigation`: to block/unblock maestro navigation
+* `Services.EventManager`: to emit and listen for maestro events
+* `Services.Navigation`: to block/unblock maestro navigation
+* `Services.Realtime`: to handle realtime communication with backend
 
 _Please refer to [mf-elm-bootstrap](https://github.com/calions-app/mf-elm-bootstrap) for code examples_
 
