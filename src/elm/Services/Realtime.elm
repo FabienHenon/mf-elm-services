@@ -18,26 +18,34 @@ type alias RealtimeData =
 
 subscribe : String -> Cmd msg
 subscribe topic =
-    EventManager.emit
-        (EventManager.makeCustomEventName "realtime:subscribe-topic")
-        (EventManager.withPayload
-            (JE.object
-                [ ( "topic", JE.string ("realtime:" ++ topic) )
-                ]
+    Cmd.batch
+        [ EventManager.emit
+            (EventManager.makeCustomEventName "realtime:subscribe-topic")
+            (EventManager.withPayload
+                (JE.object
+                    [ ( "topic", JE.string ("realtime:" ++ topic) )
+                    ]
+                )
             )
-        )
+        , EventManager.listen
+            (EventManager.makeCustomEventName ("realtime:" ++ topic))
+        ]
 
 
 unsubscribe : String -> Cmd msg
 unsubscribe topic =
-    EventManager.emit
-        (EventManager.makeCustomEventName "realtime:unsubscribe-topic")
-        (EventManager.withPayload
-            (JE.object
-                [ ( "topic", JE.string ("realtime:" ++ topic) )
-                ]
+    Cmd.batch
+        [ EventManager.emit
+            (EventManager.makeCustomEventName "realtime:unsubscribe-topic")
+            (EventManager.withPayload
+                (JE.object
+                    [ ( "topic", JE.string ("realtime:" ++ topic) )
+                    ]
+                )
             )
-        )
+        , EventManager.removeListener
+            (EventManager.makeCustomEventName ("realtime:" ++ topic))
+        ]
 
 
 onMessage : String -> msg -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg

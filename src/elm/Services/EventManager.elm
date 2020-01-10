@@ -12,6 +12,7 @@ port module Services.EventManager exposing
     , noPayload
     , onEvent
     , onEventWithoutPayload
+    , removeListener
     , withPayload
     )
 
@@ -84,6 +85,11 @@ listen (EventName eventName) =
     portAddEventListener (JE.object [ ( "eventName", JE.string eventName ) ])
 
 
+removeListener : EventName -> Cmd msg
+removeListener (EventName eventName) =
+    portRemoveEventListener (JD.object [ ( "eventName", JE.string eventName ) ])
+
+
 onEvent : EventName -> msg -> JD.Decoder obj -> (Result EventError obj -> msg) -> Sub msg
 onEvent (EventName eventName) ignoredEventMsg decoder mapper =
     portEventReceived (fromEventPayload eventName ignoredEventMsg decoder mapper)
@@ -151,3 +157,10 @@ port portAddEventListener : JE.Value -> Cmd msg
 
 
 port portEventReceived : (JE.Value -> msg) -> Sub msg
+
+
+
+-- port to remove an event listener
+
+
+port portRemoveEventListener : JD.Value -> Cmd msg

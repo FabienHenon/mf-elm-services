@@ -6,6 +6,11 @@ export const initMaestroPorts = (app, options) => {
     });
   });
 
+  // Unlisten to a maestro event
+  app.ports.portRemoveEventListener && app.ports.portRemoveEventListener.subscribe(function ({ eventName }) {
+    options.events.removeListener(eventName, function () { });
+  });
+
   // Emit an event to the maestro
   app.ports.portEmitEvent && app.ports.portEmitEvent.subscribe(function ({ eventName, payload }) {
     options.events.emit(eventName, payload);
