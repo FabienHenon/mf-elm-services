@@ -87,7 +87,7 @@ listen (EventName eventName) =
 
 removeListener : EventName -> Cmd msg
 removeListener (EventName eventName) =
-    portRemoveEventListener (JD.object [ ( "eventName", JE.string eventName ) ])
+    portRemoveEventListener (JE.object [ ( "eventName", JE.string eventName ) ])
 
 
 onEvent : EventName -> msg -> JD.Decoder obj -> (Result EventError obj -> msg) -> Sub msg
