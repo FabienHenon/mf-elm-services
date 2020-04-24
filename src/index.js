@@ -30,5 +30,6 @@ export const initMaestroPorts = (app, options) => {
 export const makeComponentConfig = (config) => ({
   closable: (config || {}).closable || false,
   editable: (config || {}).editable || false,
-  deletable: (config || {}).deletable || false
+  deletable: (config || {}).deletable || false,
+  searchable: (config || {}).searchable || false
 });
