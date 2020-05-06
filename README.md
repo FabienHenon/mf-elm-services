@@ -7,6 +7,7 @@ It contains the following modules:
 * `Services.EventManager`: to emit and listen for maestro events
 * `Services.Navigation`: to block/unblock maestro navigation
 * `Services.Realtime`: to handle realtime communication with backend
+* `EventManager.RequestPayload`: that generates an `EventManager` payload for success and error requests
 
 _Please refer to [mf-elm-bootstrap](https://github.com/calions-app/mf-elm-bootstrap) for code examples_
 
