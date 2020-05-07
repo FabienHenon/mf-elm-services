@@ -25,6 +25,11 @@ export const initMaestroPorts = (app, options) => {
   app.ports.portUnblockNavigation && app.ports.portUnblockNavigation.subscribe(function (_) {
     options.navigation.unblockNavigation();
   });
+
+  // Notify
+  app.ports.portNotify && app.ports.portNotify.subscribe(function (payload) {
+    options.services.notify(payload);
+  });
 };
 
 export const makeComponentConfig = (config) => ({
@@ -32,5 +37,15 @@ export const makeComponentConfig = (config) => ({
   editable: (config || {}).editable || false,
   deletable: (config || {}).deletable || false,
   searchable: (config || {}).searchable || false,
-  newable: (config || {}).newable || false
+  newable: (config || {}).newable || false,
+  notifications: {
+    created: ((config || {}).notifications || {}).created || false,
+    deleted: ((config || {}).notifications || {}).deleted || false,
+    fetched: ((config || {}).notifications || {}).fetched || false,
+    updated: ((config || {}).notifications || {}).updated || false,
+    notCreated: ((config || {}).notifications || {}).notCreated || false,
+    notDeleted: ((config || {}).notifications || {}).notDeleted || false,
+    notFetched: ((config || {}).notifications || {}).notFetched || false,
+    notUpdated: ((config || {}).notifications || {}).notUpdated || false,
+  },
 });
