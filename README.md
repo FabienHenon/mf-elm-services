@@ -12,6 +12,51 @@ It contains the following modules:
 
 _Please refer to [mf-elm-bootstrap](https://github.com/calions-app/mf-elm-bootstrap) for code examples_
 
+You also have several usefull functions in JS to make your configuration (for Elm flags):
+
+* `makeComponentConfig`: Make a configuration for Elm flags with some default values
+* `withMasterDefaultNotificationConfig`: Make the default configuration for notifications in `master` view
+* `withNewDefaultNotificationConfig`: Make the default configuration for notifications in `new` view
+* `withEditDefaultNotificationConfig`: Make the default configuration for notifications in `edit` view
+* `withDetailDefaultNotificationConfig`: Make the default configuration for notifications in `detail` view
+* `withDeleteDefaultNotificationConfig`: Make the default configuration for notifications in `delete` view
+
+Here is how to use it:
+
+```js
+makeComponentConfig(withMasterDefaultNotificationConfig({
+  closable: true,
+  searchable: true,
+  notifications: {
+    fetched: true
+  }
+}))
+```
+
+This will generate the following configuration (due to the default values):
+
+```js
+{
+  closable: true,
+  editable: false,
+  deletable: false,
+  searchable: true,
+  newable: false,
+  notifications: {
+    created: false,
+    deleted: false,
+    fetched: true,
+    updated: false,
+    notCreated: false,
+    notDeleted: false,
+    notFetched: true,
+    notUpdated: false
+  }
+}
+```
+
+_To know what are the default values for the configuration see the `index.js` source file_
+
 ## Install
 
 Add this package to your node modules:

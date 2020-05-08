@@ -32,20 +32,69 @@ export const initMaestroPorts = (app, options) => {
   });
 };
 
+const valueOrDefault = (value, defaultValue) => typeof value === 'undefined' ? defaultValue : value;
+
 export const makeComponentConfig = (config) => ({
-  closable: (config || {}).closable || false,
-  editable: (config || {}).editable || false,
-  deletable: (config || {}).deletable || false,
-  searchable: (config || {}).searchable || false,
-  newable: (config || {}).newable || false,
+  closable: valueOrDefault((config || {}).closable, false),
+  editable: valueOrDefault((config || {}).editable, false),
+  deletable: valueOrDefault((config || {}).deletable, false),
+  searchable: valueOrDefault((config || {}).searchable, false),
+  newable: valueOrDefault((config || {}).newable, false),
   notifications: {
-    created: ((config || {}).notifications || {}).created || false,
-    deleted: ((config || {}).notifications || {}).deleted || false,
-    fetched: ((config || {}).notifications || {}).fetched || false,
-    updated: ((config || {}).notifications || {}).updated || false,
-    notCreated: ((config || {}).notifications || {}).notCreated || false,
-    notDeleted: ((config || {}).notifications || {}).notDeleted || false,
-    notFetched: ((config || {}).notifications || {}).notFetched || false,
-    notUpdated: ((config || {}).notifications || {}).notUpdated || false,
+    created: valueOrDefault(((config || {}).notifications || {}).created, false),
+    deleted: valueOrDefault(((config || {}).notifications || {}).deleted, false),
+    fetched: valueOrDefault(((config || {}).notifications || {}).fetched, false),
+    updated: valueOrDefault(((config || {}).notifications || {}).updated, false),
+    notCreated: valueOrDefault(((config || {}).notifications || {}).notCreated, false),
+    notDeleted: valueOrDefault(((config || {}).notifications || {}).notDeleted, false),
+    notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, false),
+    notUpdated: valueOrDefault(((config || {}).notifications || {}).notUpdated, false),
+  },
+});
+
+export const withMasterDefaultNotificationConfig = (config) => ({
+  ...config,
+  notifications: {
+    ...(config.notifications || {}),
+    fetched: valueOrDefault(((config || {}).notifications || {}).fetched, false),
+    notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+  },
+});
+
+export const withNewDefaultNotificationConfig = (config) => ({
+  ...config,
+  notifications: {
+    ...(config.notifications || {}),
+    created: valueOrDefault(((config || {}).notifications || {}).fetched, true),
+    notCreated: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+  },
+});
+
+export const withDeleteDefaultNotificationConfig = (config) => ({
+  ...config,
+  notifications: {
+    ...(config.notifications || {}),
+    deleted: valueOrDefault(((config || {}).notifications || {}).fetched, true),
+    notDeleted: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+  },
+});
+
+export const withDetailDefaultNotificationConfig = (config) => ({
+  ...config,
+  notifications: {
+    ...(config.notifications || {}),
+    fetched: valueOrDefault(((config || {}).notifications || {}).fetched, false),
+    notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+  },
+});
+
+export const withEditDefaultNotificationConfig = (config) => ({
+  ...config,
+  notifications: {
+    ...(config.notifications || {}),
+    fetched: valueOrDefault(((config || {}).notifications || {}).fetched, false),
+    updated: valueOrDefault(((config || {}).notifications || {}).fetched, true),
+    notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+    notUpdated: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
   },
 });
