@@ -1,4 +1,4 @@
-module Services.Realtime exposing (RealtimeData, RealtimeEvent, onMessage, subscribe, unsubscribe)
+module Services.Realtime exposing (RealtimeData, RealtimeEvent, onCurrentSessionMessage, onMessage, subscribe, unsubscribe)
 
 import Json.Decode as JD
 import Json.Encode as JE
@@ -52,6 +52,15 @@ onMessage : String -> msg -> (Result EventManager.EventError RealtimeData -> msg
 onMessage topic ignoredEventMsg mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName ("realtime:" ++ topic))
+        ignoredEventMsg
+        realtimeDecoder
+        mapper
+
+
+onCurrentSessionMessage : msg -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onCurrentSessionMessage ignoredEventMsg mapper =
+    EventManager.onEvent
+        (EventManager.makeCustomEventName "session:current-session")
         ignoredEventMsg
         realtimeDecoder
         mapper
