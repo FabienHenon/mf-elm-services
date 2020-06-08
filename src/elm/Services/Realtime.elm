@@ -1,4 +1,4 @@
-module Services.Realtime exposing (RealtimeData, RealtimeEvent, onCurrentSessionMessage, onMessage, subscribe, unsubscribe)
+module Services.Realtime exposing (RealtimeData, RealtimeEvent, onCurrentSessionMessage, onMessage, subscribe, subscribeCurrentSession, unsubscribe, unsubscribeCurrentSession)
 
 import Json.Decode as JD
 import Json.Encode as JE
@@ -46,6 +46,18 @@ unsubscribe topic =
         , EventManager.removeListener
             (EventManager.makeCustomEventName ("realtime:" ++ topic))
         ]
+
+
+subscribeCurrentSession : Cmd msg
+subscribeCurrentSession =
+    EventManager.listen
+        (EventManager.makeCustomEventName "session:current-session")
+
+
+unsubscribeCurrentSession : Cmd msg
+unsubscribeCurrentSession =
+    EventManager.removeListener
+        (EventManager.makeCustomEventName "session:current-session")
 
 
 onMessage : String -> msg -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
