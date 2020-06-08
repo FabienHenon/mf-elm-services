@@ -65,8 +65,8 @@ export const withNewDefaultNotificationConfig = (config) => ({
   ...config,
   notifications: {
     ...(config.notifications || {}),
-    created: valueOrDefault(((config || {}).notifications || {}).fetched, true),
-    notCreated: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+    created: valueOrDefault(((config || {}).notifications || {}).created, true),
+    notCreated: valueOrDefault(((config || {}).notifications || {}).notCreated, true),
   },
 });
 
@@ -74,8 +74,8 @@ export const withDeleteDefaultNotificationConfig = (config) => ({
   ...config,
   notifications: {
     ...(config.notifications || {}),
-    deleted: valueOrDefault(((config || {}).notifications || {}).fetched, true),
-    notDeleted: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+    deleted: valueOrDefault(((config || {}).notifications || {}).deleted, true),
+    notDeleted: valueOrDefault(((config || {}).notifications || {}).notDeleted, true),
   },
 });
 
@@ -93,8 +93,8 @@ export const withEditDefaultNotificationConfig = (config) => ({
   notifications: {
     ...(config.notifications || {}),
     fetched: valueOrDefault(((config || {}).notifications || {}).fetched, false),
-    updated: valueOrDefault(((config || {}).notifications || {}).fetched, true),
+    updated: valueOrDefault(((config || {}).notifications || {}).updated, true),
     notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
-    notUpdated: valueOrDefault(((config || {}).notifications || {}).notFetched, true),
+    notUpdated: valueOrDefault(((config || {}).notifications || {}).notUpdated, true),
   },
 });
