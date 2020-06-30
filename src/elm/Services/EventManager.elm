@@ -1,7 +1,6 @@
 port module Services.EventManager exposing
     ( Config
     , EntityName
-    , EventError(..)
     , EventName
     , Payload
     , StateName
@@ -32,10 +31,6 @@ type alias StateName =
 
 type alias EntityName =
     String
-
-
-type EventError
-    = BadEventPayload
 
 
 type Payload
@@ -90,7 +85,7 @@ removeListener (EventName eventName) =
     portRemoveEventListener (JE.object [ ( "eventName", JE.string eventName ) ])
 
 
-onEvent : EventName -> msg -> JD.Decoder obj -> (Result EventError obj -> msg) -> Sub msg
+onEvent : EventName -> msg -> JD.Decoder obj -> (obj -> msg) -> Sub msg
 onEvent (EventName eventName) ignoredEventMsg decoder mapper =
     portEventReceived (fromEventPayload eventName ignoredEventMsg decoder mapper)
 
@@ -100,7 +95,7 @@ onEventWithoutPayload (EventName eventName) ignoredEventMsg eventMsg =
     portEventReceived (fromEventWithoutPayload eventName ignoredEventMsg eventMsg)
 
 
-fromEventPayload : String -> msg -> JD.Decoder obj -> (Result EventError obj -> msg) -> JE.Value -> msg
+fromEventPayload : String -> msg -> JD.Decoder obj -> (obj -> msg) -> JE.Value -> msg
 fromEventPayload wantedEventName ignoredEventMsg decoder mapper event =
     case JD.decodeValue eventDecoder event of
         Err _ ->
@@ -110,7 +105,7 @@ fromEventPayload wantedEventName ignoredEventMsg decoder mapper event =
             if wantedEventName == eventName then
                 case JD.decodeValue decoder payload of
                     Ok payload_ ->
-                        mapper (Ok payload_)
+                        mapper payload_
 
                     Err error ->
                         ignoredEventMsg

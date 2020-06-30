@@ -73,7 +73,7 @@ unsubscribeCurrentSession =
         (EventManager.makeCustomEventName "session:current-session")
 
 
-onMessage : String -> msg -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onMessage : String -> msg -> (RealtimeData -> msg) -> Sub msg
 onMessage topic ignoredEventMsg mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName ("realtime:" ++ topic))
@@ -82,7 +82,7 @@ onMessage topic ignoredEventMsg mapper =
         mapper
 
 
-onFilteredMessage : String -> msg -> RealtimeEvent -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onFilteredMessage : String -> msg -> RealtimeEvent -> (RealtimeData -> msg) -> Sub msg
 onFilteredMessage topic ignoredEventMsg filterEvent mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName ("realtime:" ++ topic))
@@ -91,7 +91,7 @@ onFilteredMessage topic ignoredEventMsg filterEvent mapper =
         (checkEvent ignoredEventMsg filterEvent mapper)
 
 
-onCurrentSessionMessage : msg -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onCurrentSessionMessage : msg -> (RealtimeData -> msg) -> Sub msg
 onCurrentSessionMessage ignoredEventMsg mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName "session:current-session")
@@ -100,7 +100,7 @@ onCurrentSessionMessage ignoredEventMsg mapper =
         mapper
 
 
-onFilteredCurrentSessionMessage : msg -> RealtimeEvent -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onFilteredCurrentSessionMessage : msg -> RealtimeEvent -> (RealtimeData -> msg) -> Sub msg
 onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName "session:current-session")
@@ -109,7 +109,7 @@ onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
         (checkEvent ignoredEventMsg filterEvent mapper)
 
 
-checkEvent : msg -> RealtimeEvent -> (Result EventManager.EventError RealtimeData -> msg) -> Result EventManager.EventError RealtimeData -> msg
+checkEvent : msg -> RealtimeEvent -> (RealtimeData -> msg) -> RealtimeData -> msg
 checkEvent ignoredEventMsg filterEvent mapper res =
     case res of
         Ok payload ->
