@@ -1,4 +1,15 @@
-module Services.Realtime exposing (RealtimeData, RealtimeEvent, onCurrentSessionMessage, onMessage, subscribe, subscribeCurrentSession, unsubscribe, unsubscribeCurrentSession)
+module Services.Realtime exposing
+    ( RealtimeData
+    , RealtimeEvent
+    , onCurrentSessionMessage
+    , onFilteredCurrentSessionMessage
+    , onFilteredMessage
+    , onMessage
+    , subscribe
+    , subscribeCurrentSession
+    , unsubscribe
+    , unsubscribeCurrentSession
+    )
 
 import Json.Decode as JD
 import Json.Encode as JE
