@@ -1,6 +1,6 @@
 module Services.Realtime exposing
     ( RealtimeData
-    , RealtimeEvent
+    , RealtimeEvent(..)
     , onCurrentSessionMessage
     , onFilteredCurrentSessionMessage
     , onFilteredMessage
