@@ -108,10 +108,12 @@ fromEventPayload wantedEventName ignoredEventMsg decoder mapper event =
 
         Ok { eventName, payload } ->
             if wantedEventName == eventName then
-                payload
-                    |> JD.decodeValue decoder
-                    |> Result.mapError (always BadEventPayload)
-                    |> mapper
+                case JD.decodeValue decoder payload of
+                    Ok payload ->
+                        mapper payload
+
+                    Err error ->
+                        ignoredEventMsg
 
             else
                 ignoredEventMsg

@@ -6,7 +6,9 @@ import Services.EventManager as EventManager
 
 
 type RealtimeEvent
-    = IndexEvent
+    = CustomEvent String
+    | IndexEvent
+    | MFEvent String
     | ShowEvent
 
 
@@ -69,6 +71,15 @@ onMessage topic ignoredEventMsg mapper =
         mapper
 
 
+onFilteredMessage : String -> msg -> RealtimeEvent -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onFilteredMessage topic ignoredEventMsg filterEvent mapper =
+    EventManager.onEvent
+        (EventManager.makeCustomEventName ("realtime:" ++ topic))
+        ignoredEventMsg
+        realtimeDecoder
+        (checkEvent ignoredEventMsg filterEvent mapper)
+
+
 onCurrentSessionMessage : msg -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
 onCurrentSessionMessage ignoredEventMsg mapper =
     EventManager.onEvent
@@ -78,21 +89,48 @@ onCurrentSessionMessage ignoredEventMsg mapper =
         mapper
 
 
+onFilteredCurrentSessionMessage : msg -> RealtimeEvent -> (Result EventManager.EventError RealtimeData -> msg) -> Sub msg
+onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
+    EventManager.onEvent
+        (EventManager.makeCustomEventName "session:current-session")
+        ignoredEventMsg
+        realtimeDecoder
+        (checkEvent ignoredEventMsg filterEvent mapper)
+
+
+checkEvent : msg -> RealtimeEvent -> (Result EventManager.EventError RealtimeData -> msg) -> Result EventManager.EventError RealtimeData -> msg
+checkEvent ignoredEventMsg filterEvent mapper res =
+    case res of
+        Ok payload ->
+            if payload.event == filterEvent then
+                mapper res
+
+            else
+                ignoredEventMsg
+
+        Err error ->
+            ignoredEventMsg
+
+
 realtimeDecoder : JD.Decoder RealtimeData
 realtimeDecoder =
     JD.map2 RealtimeData
         (JD.maybe (JD.field "data" JD.value))
-        (JD.field "event" (JD.string |> JD.andThen eventDecoder))
+        (JD.field "event" (JD.string |> JD.map eventDecoder))
 
 
-eventDecoder : String -> JD.Decoder RealtimeEvent
+eventDecoder : String -> RealtimeEvent
 eventDecoder event =
     case event of
         "index" ->
-            JD.succeed IndexEvent
+            IndexEvent
 
         "show" ->
-            JD.succeed ShowEvent
+            ShowEvent
 
         t ->
-            JD.fail ("Unknown event " ++ t)
+            if String.startsWith "mf:" t then
+                MFEvent (String.dropLeft 3 t)
+
+            else
+                CustomEvent t
