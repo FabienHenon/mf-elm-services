@@ -110,17 +110,12 @@ onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
 
 
 checkEvent : msg -> RealtimeEvent -> (RealtimeData -> msg) -> RealtimeData -> msg
-checkEvent ignoredEventMsg filterEvent mapper res =
-    case res of
-        Ok payload ->
-            if payload.event == filterEvent then
-                mapper res
+checkEvent ignoredEventMsg filterEvent mapper payload =
+    if payload.event == filterEvent then
+        mapper payload
 
-            else
-                ignoredEventMsg
-
-        Err error ->
-            ignoredEventMsg
+    else
+        ignoredEventMsg
 
 
 realtimeDecoder : JD.Decoder RealtimeData
