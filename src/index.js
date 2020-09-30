@@ -55,6 +55,7 @@ export const makeComponentConfig = (config) => ({
   },
   showSubmitLoader: valueOrDefault((config || {}).showSubmitLoader, false),
   showReset: valueOrDefault((config || {}).showReset, false),
+  showTitle: valueOrDefault((config || {}).showTitle, true),
   submitLabel: valueOrDefault((config || {}).submitLabel, null),
   title: valueOrDefault((config || {}).title, null),
 });
