@@ -36,8 +36,11 @@ const valueOrDefault = (value, defaultValue) => typeof value === 'undefined' ? d
 
 export const makeComponentConfig = (config) => ({
   closable: valueOrDefault((config || {}).closable, false),
+  closeTitle: valueOrDefault((config || {}).closeTitle, null),
+  customEvents: valueOrDefault((config || {}).customEvents, []),
   editable: valueOrDefault((config || {}).editable, false),
   deletable: valueOrDefault((config || {}).deletable, false),
+  loadingButtonLabel: valueOrDefault((config || {}).loadingButtonLabel, null),
   searchable: valueOrDefault((config || {}).searchable, false),
   newable: valueOrDefault((config || {}).newable, false),
   notifications: {
@@ -50,6 +53,10 @@ export const makeComponentConfig = (config) => ({
     notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, false),
     notUpdated: valueOrDefault(((config || {}).notifications || {}).notUpdated, false),
   },
+  showSubmitLoader: valueOrDefault((config || {}).showSubmitLoader, false),
+  showReset: valueOrDefault((config || {}).showReset, false),
+  submitLabel: valueOrDefault((config || {}).submitLabel, null),
+  title: valueOrDefault((config || {}).title, null),
 });
 
 export const withMasterDefaultNotificationConfig = (config) => ({
