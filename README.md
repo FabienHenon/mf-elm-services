@@ -9,6 +9,7 @@ It contains the following modules:
 * `Services.Realtime`: to handle realtime communication with backend
 * `Services.Notifications`: to display notifications from the maestro
 * `Services.Data`: that generates a json payload for success and error requests/notifications
+* `Services.Validations`: that handles form validation
 
 _Please refer to [mf-elm-bootstrap](https://github.com/calions-app/mf-elm-bootstrap) for code examples_
 
@@ -37,12 +38,15 @@ This will generate the following configuration (due to the default values):
 
 ```js
 {
-  closable: true,
-  editable: false,
-  deletable: false,
-  searchable: true,
-  newable: false,
-  notifications: {
+  closable: true,           // Shows a button to close the MF
+  closeTitle: null,         // Changes the text for the close button
+  customEvents: [],         // Events to be added in a dropdown menu in master and detail views
+  editable: false,          // Shows a button to edit the entity
+  deletable: false,         // Shows a button to deelte the entity
+  loadingButtonLabel: null, // Label to use in form submit button when entity is creating/updating (defaults to a loader)
+  searchable: true,         // Shows a search form for master views
+  newable: false,           // Shows a button to create a new entity
+  notifications: {          // Shows notification instead of plain text for the following events
     created: false,
     deleted: false,
     fetched: true,
@@ -51,7 +55,13 @@ This will generate the following configuration (due to the default values):
     notDeleted: false,
     notFetched: true,
     notUpdated: false
-  }
+  },
+  showFetchLoader: true,    // Shows a loader in edit views when the entity is loading
+  showSubmitLoader: false,  // Shows a loader in edit/new views when the enitty is creating
+  showReset: false,         // Shows a reset button in form views (new/edit)
+  showTitle: true,          // Shows a title for the MF
+  submitLabel: null,        // Changes the submit button label in forms
+  title: null,              // Changes the title of the MF
 }
 ```
 

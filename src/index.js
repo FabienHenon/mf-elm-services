@@ -53,6 +53,7 @@ export const makeComponentConfig = (config) => ({
     notFetched: valueOrDefault(((config || {}).notifications || {}).notFetched, false),
     notUpdated: valueOrDefault(((config || {}).notifications || {}).notUpdated, false),
   },
+  showFetchLoader: valueOrDefault((config || {}).showFetchLoader, true),
   showSubmitLoader: valueOrDefault((config || {}).showSubmitLoader, false),
   showReset: valueOrDefault((config || {}).showReset, false),
   showTitle: valueOrDefault((config || {}).showTitle, true),
