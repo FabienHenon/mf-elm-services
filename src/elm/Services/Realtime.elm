@@ -18,13 +18,11 @@ import Services.EventManager as EventManager
 
 type RealtimeEvent
     = CustomEvent String
-    | IndexEvent
     | MFEvent String
-    | ShowEvent
 
 
 type alias RealtimeData =
-    { data : Maybe JD.Value
+    { metadata : Maybe JD.Value
     , event : RealtimeEvent
     }
 
@@ -121,22 +119,14 @@ checkEvent ignoredEventMsg filterEvent mapper payload =
 realtimeDecoder : JD.Decoder RealtimeData
 realtimeDecoder =
     JD.map2 RealtimeData
-        (JD.maybe (JD.field "data" JD.value))
+        (JD.maybe (JD.field "metadata" JD.value))
         (JD.field "event" (JD.string |> JD.map eventDecoder))
 
 
 eventDecoder : String -> RealtimeEvent
 eventDecoder event =
-    case event of
-        "index" ->
-            IndexEvent
+    if String.startsWith "mf:" event then
+        MFEvent (String.dropLeft 3 event)
 
-        "show" ->
-            ShowEvent
-
-        t ->
-            if String.startsWith "mf:" t then
-                MFEvent (String.dropLeft 3 t)
-
-            else
-                CustomEvent t
+    else
+        CustomEvent t
