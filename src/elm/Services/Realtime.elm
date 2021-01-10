@@ -1,5 +1,6 @@
 module Services.Realtime exposing
     ( RealtimeData
+    , RealtimeDataWithMetadata
     , RealtimeEvent(..)
     , onCurrentSessionMessage
     , onFilteredCurrentSessionMessage
@@ -9,6 +10,7 @@ module Services.Realtime exposing
     , subscribeCurrentSession
     , unsubscribe
     , unsubscribeCurrentSession
+    , withMetadata
     )
 
 import Json.Decode as JD
@@ -24,6 +26,12 @@ type RealtimeEvent
 type alias RealtimeData =
     { metadata : Maybe JD.Value
     , event : RealtimeEvent
+    }
+
+
+type alias RealtimeDataWithMetadata a =
+    { event : RealtimeEvent
+    , metadata : a
     }
 
 
@@ -105,6 +113,15 @@ onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
         ignoredEventMsg
         realtimeDecoder
         (checkEvent ignoredEventMsg filterEvent mapper)
+
+
+withMetadata : msg -> JD.Decoder a -> (RealtimeDataWithMetadata a -> msg) -> RealtimeData -> msg
+withMetadata ignoredEventMsg decoder mapper realtime =
+    realtime.metadata
+        |> Maybe.andThen (JD.decodeValue decoder >> Result.toMaybe)
+        |> Maybe.map (RealtimeDataWithMetadata realtime.event)
+        |> Maybe.map mapper
+        |> Maybe.withDefault ignoredEventMsg
 
 
 checkEvent : msg -> RealtimeEvent -> (RealtimeData -> msg) -> RealtimeData -> msg
