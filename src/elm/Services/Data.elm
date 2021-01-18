@@ -1,4 +1,4 @@
-module Services.Data exposing (payload)
+module Services.Data exposing (payload, payloadWithHttpRequestId)
 
 import Http
 import Http.Error
@@ -8,12 +8,18 @@ import RemoteData
 
 payload : Maybe JE.Value -> String -> RemoteData.RemoteData Http.Error.RequestError a -> JE.Value
 payload resValue message res =
+    payloadWithHttpRequestId resValue message (res |> RemoteData.map (\v -> ( v, Nothing )))
+
+
+payloadWithHttpRequestId : Maybe JE.Value -> String -> RemoteData.RemoteData Http.Error.RequestError ( a, Maybe String ) -> JE.Value
+payloadWithHttpRequestId resValue message res =
     case res of
-        RemoteData.Success r ->
+        RemoteData.Success ( r, httpRequestId ) ->
             JE.object
                 [ ( "type", JE.string "success" )
                 , ( "message", JE.string message )
                 , ( "resource", resValue |> Maybe.withDefault JE.null )
+                , ( "httpRequestId", httpRequestId |> Maybe.map JE.string |> Maybe.withDefault JE.null )
                 ]
 
         RemoteData.Failure err ->
