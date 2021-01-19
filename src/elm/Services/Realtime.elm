@@ -21,6 +21,7 @@ import Services.EventManager as EventManager
 type RealtimeEvent
     = CustomEvent String
     | MFEvent String
+    | NoEvent
 
 
 type alias RealtimeData =
@@ -137,7 +138,7 @@ realtimeDecoder : JD.Decoder RealtimeData
 realtimeDecoder =
     JD.map2 RealtimeData
         (JD.maybe (JD.field "metadata" JD.value))
-        (JD.field "event" (JD.string |> JD.map eventDecoder))
+        (JD.field "event" (JD.oneOf [ JD.string |> JD.map eventDecoder, JD.succeed NoEvent ]))
 
 
 eventDecoder : String -> RealtimeEvent
