@@ -146,4 +146,4 @@ eventDecoder event =
         MFEvent (String.dropLeft 3 event)
 
     else
-        CustomEvent t
+        CustomEvent event
