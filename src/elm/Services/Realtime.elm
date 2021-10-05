@@ -118,11 +118,11 @@ onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
 withMetadata : (String -> msg) -> JD.Decoder a -> (RealtimeDataWithMetadata a -> msg) -> RealtimeData -> msg
 withMetadata ignoredEventMsg decoder mapper realtime =
     realtime.metadata
-        |> Maybe.map 
-            (JD.decodeValue decoder 
+        |> Maybe.map
+            (JD.decodeValue decoder
                 >> Result.map (RealtimeDataWithMetadata realtime.event)
                 >> Result.map mapper
-                >> Result.mapError (\err -> ignoredEventMsg ("Event metadata decoder error : " ++ (JD.errorToString err)))
+                >> Result.mapError (\err -> ignoredEventMsg ("Event metadata decoder error : " ++ JD.errorToString err))
                 >> resultToMessage
             )
         |> Maybe.withDefault (ignoredEventMsg "Event metadata not found")
@@ -133,7 +133,7 @@ resultToMessage result =
     case result of
         Ok msg ->
             msg
-        
+
         Err msg ->
             msg
 
@@ -144,7 +144,7 @@ checkEvent ignoredEventMsg filterEvent mapper payload =
         mapper payload
 
     else
-        ignoredEventMsg ("Event " ++ (getEventName filterEvent) ++ " does not match event " ++ (getEventName payload.event))
+        ignoredEventMsg ("Event " ++ getEventName filterEvent ++ " does not match event " ++ getEventName payload.event)
 
 
 realtimeDecoder : JD.Decoder RealtimeData
@@ -160,5 +160,10 @@ eventDecoder =
 
 
 getEventName : RealtimeEvent -> String
-getEventName (RealtimeEvent event) =
-    event
+getEventName event =
+    case event of
+        RealtimeEvent e ->
+            e
+
+        NoEvent ->
+            ""

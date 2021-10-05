@@ -1,6 +1,6 @@
 {
   "name": "mf-elm-services",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Elm services (ports) to be used with micro frontends within the maestro",
   "main": "index.js",
   "scripts": {
