@@ -85,21 +85,21 @@ removeListener (EventName eventName) =
     portRemoveEventListener (JE.object [ ( "eventName", JE.string eventName ) ])
 
 
-onEvent : EventName -> msg -> JD.Decoder obj -> (obj -> msg) -> Sub msg
+onEvent : EventName -> (String -> msg) -> JD.Decoder obj -> (obj -> msg) -> Sub msg
 onEvent (EventName eventName) ignoredEventMsg decoder mapper =
     portEventReceived (fromEventPayload eventName ignoredEventMsg decoder mapper)
 
 
-onEventWithoutPayload : EventName -> msg -> msg -> Sub msg
+onEventWithoutPayload : EventName -> (String -> msg) -> msg -> Sub msg
 onEventWithoutPayload (EventName eventName) ignoredEventMsg eventMsg =
     portEventReceived (fromEventWithoutPayload eventName ignoredEventMsg eventMsg)
 
 
-fromEventPayload : String -> msg -> JD.Decoder obj -> (obj -> msg) -> JE.Value -> msg
+fromEventPayload : String -> (String -> msg) -> JD.Decoder obj -> (obj -> msg) -> JE.Value -> msg
 fromEventPayload wantedEventName ignoredEventMsg decoder mapper event =
     case JD.decodeValue eventDecoder event of
-        Err _ ->
-            ignoredEventMsg
+        Err err ->
+            ignoredEventMsg ("Event decoder error : " ++ (JD.errorToString err))
 
         Ok { eventName, payload } ->
             if wantedEventName == eventName then
@@ -108,24 +108,24 @@ fromEventPayload wantedEventName ignoredEventMsg decoder mapper event =
                         mapper payload_
 
                     Err error ->
-                        ignoredEventMsg
+                        ignoredEventMsg ("Event payload decoder error : " ++ (JD.errorToString error))
 
             else
-                ignoredEventMsg
+                ignoredEventMsg ("Bad event name " ++ wantedEventName ++ ", actual event name is " ++ eventName)
 
 
-fromEventWithoutPayload : String -> msg -> msg -> JE.Value -> msg
+fromEventWithoutPayload : String -> (String -> msg) -> msg -> JE.Value -> msg
 fromEventWithoutPayload wantedEventName ignoredEventMsg eventMsg event =
     case JD.decodeValue eventDecoder event of
-        Err _ ->
-            ignoredEventMsg
+        Err err ->
+            ignoredEventMsg ("Event decoder error : " ++ (JD.errorToString err))
 
         Ok { eventName } ->
             if wantedEventName == eventName then
                 eventMsg
 
             else
-                ignoredEventMsg
+                ignoredEventMsg ("Bad event name " ++ wantedEventName ++ ", actual event name is " ++ eventName)
 
 
 eventDecoder : JD.Decoder EventPayload

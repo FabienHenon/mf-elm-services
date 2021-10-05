@@ -19,8 +19,7 @@ import Services.EventManager as EventManager
 
 
 type RealtimeEvent
-    = CustomEvent String
-    | MFEvent String
+    = RealtimeEvent String
     | NoEvent
 
 
@@ -80,7 +79,7 @@ unsubscribeCurrentSession =
         (EventManager.makeCustomEventName "session:current-session")
 
 
-onMessage : String -> msg -> (RealtimeData -> msg) -> Sub msg
+onMessage : String -> (String -> msg) -> (RealtimeData -> msg) -> Sub msg
 onMessage topic ignoredEventMsg mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName ("realtime:" ++ topic))
@@ -89,7 +88,7 @@ onMessage topic ignoredEventMsg mapper =
         mapper
 
 
-onFilteredMessage : String -> msg -> RealtimeEvent -> (RealtimeData -> msg) -> Sub msg
+onFilteredMessage : String -> (String -> msg) -> RealtimeEvent -> (RealtimeData -> msg) -> Sub msg
 onFilteredMessage topic ignoredEventMsg filterEvent mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName ("realtime:" ++ topic))
@@ -98,7 +97,7 @@ onFilteredMessage topic ignoredEventMsg filterEvent mapper =
         (checkEvent ignoredEventMsg filterEvent mapper)
 
 
-onCurrentSessionMessage : msg -> (RealtimeData -> msg) -> Sub msg
+onCurrentSessionMessage : (String -> msg) -> (RealtimeData -> msg) -> Sub msg
 onCurrentSessionMessage ignoredEventMsg mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName "session:current-session")
@@ -107,7 +106,7 @@ onCurrentSessionMessage ignoredEventMsg mapper =
         mapper
 
 
-onFilteredCurrentSessionMessage : msg -> RealtimeEvent -> (RealtimeData -> msg) -> Sub msg
+onFilteredCurrentSessionMessage : (String -> msg) -> RealtimeEvent -> (RealtimeData -> msg) -> Sub msg
 onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
     EventManager.onEvent
         (EventManager.makeCustomEventName "session:current-session")
@@ -116,22 +115,36 @@ onFilteredCurrentSessionMessage ignoredEventMsg filterEvent mapper =
         (checkEvent ignoredEventMsg filterEvent mapper)
 
 
-withMetadata : msg -> JD.Decoder a -> (RealtimeDataWithMetadata a -> msg) -> RealtimeData -> msg
+withMetadata : (String -> msg) -> JD.Decoder a -> (RealtimeDataWithMetadata a -> msg) -> RealtimeData -> msg
 withMetadata ignoredEventMsg decoder mapper realtime =
     realtime.metadata
-        |> Maybe.andThen (JD.decodeValue decoder >> Result.toMaybe)
-        |> Maybe.map (RealtimeDataWithMetadata realtime.event)
-        |> Maybe.map mapper
-        |> Maybe.withDefault ignoredEventMsg
+        |> Maybe.map 
+            (JD.decodeValue decoder 
+                >> Result.map (RealtimeDataWithMetadata realtime.event)
+                >> Result.map mapper
+                >> Result.mapError (\err -> ignoredEventMsg ("Event metadata decoder error : " ++ (JD.errorToString err)))
+                >> resultToMessage
+            )
+        |> Maybe.withDefault (ignoredEventMsg "Event metadata not found")
 
 
-checkEvent : msg -> RealtimeEvent -> (RealtimeData -> msg) -> RealtimeData -> msg
+resultToMessage : Result msg msg -> msg
+resultToMessage result =
+    case result of
+        Ok msg ->
+            msg
+        
+        Err msg ->
+            msg
+
+
+checkEvent : (String -> msg) -> RealtimeEvent -> (RealtimeData -> msg) -> RealtimeData -> msg
 checkEvent ignoredEventMsg filterEvent mapper payload =
     if payload.event == filterEvent then
         mapper payload
 
     else
-        ignoredEventMsg
+        ignoredEventMsg ("Event " ++ (getEventName filterEvent) ++ " does not match event " ++ (getEventName payload.event))
 
 
 realtimeDecoder : JD.Decoder RealtimeData
@@ -142,9 +155,10 @@ realtimeDecoder =
 
 
 eventDecoder : String -> RealtimeEvent
-eventDecoder event =
-    if String.startsWith "mf:" event then
-        MFEvent (String.dropLeft 3 event)
+eventDecoder =
+    RealtimeEvent
 
-    else
-        CustomEvent event
+
+getEventName : RealtimeEvent -> String
+getEventName (RealtimeEvent event) =
+    event
