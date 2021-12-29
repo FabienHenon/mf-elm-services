@@ -6,6 +6,7 @@ port module Services.EventManager exposing
     , StateName
     , emit
     , listen
+    , listenOnce
     , makeCustomEventName
     , makeEventName
     , noPayload
@@ -80,6 +81,11 @@ listen (EventName eventName) =
     portAddEventListener (JE.object [ ( "eventName", JE.string eventName ) ])
 
 
+listenOnce : EventName -> Cmd msg
+listenOnce (EventName eventName) =
+    portAddEventListenerOnce (JE.object [ ( "eventName", JE.string eventName ) ])
+
+
 removeListener : EventName -> Cmd msg
 removeListener (EventName eventName) =
     portRemoveEventListener (JE.object [ ( "eventName", JE.string eventName ) ])
@@ -147,6 +153,13 @@ port portEmitEvent : JE.Value -> Cmd msg
 
 
 port portAddEventListener : JE.Value -> Cmd msg
+
+
+
+-- port for listening string events out to JavaScript
+
+
+port portAddEventListenerOnce : JE.Value -> Cmd msg
 
 
 

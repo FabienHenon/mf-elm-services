@@ -2,10 +2,12 @@ module Services.Realtime exposing
     ( RealtimeData
     , RealtimeDataWithMetadata
     , RealtimeEvent(..)
+    , RealtimeTopicJoined
     , onCurrentSessionMessage
     , onFilteredCurrentSessionMessage
     , onFilteredMessage
     , onMessage
+    , onTopicJoined
     , subscribe
     , subscribeCurrentSession
     , unsubscribe
@@ -35,6 +37,12 @@ type alias RealtimeDataWithMetadata a =
     }
 
 
+type alias RealtimeTopicJoined =
+    { success : Bool
+    , error : Maybe String
+    }
+
+
 subscribe : String -> Cmd msg
 subscribe topic =
     Cmd.batch
@@ -46,6 +54,8 @@ subscribe topic =
                     ]
                 )
             )
+        , EventManager.listenOnce
+            (EventManager.makeCustomEventName ("realtime:" ++ topic ++ ":joined"))
         , EventManager.listen
             (EventManager.makeCustomEventName ("realtime:" ++ topic))
         ]
@@ -77,6 +87,15 @@ unsubscribeCurrentSession : Cmd msg
 unsubscribeCurrentSession =
     EventManager.removeListener
         (EventManager.makeCustomEventName "session:current-session")
+
+
+onTopicJoined : String -> (String -> msg) -> (RealtimeTopicJoined -> msg) -> Sub msg
+onTopicJoined topic ignoredEventMsg mapper =
+    EventManager.onEvent
+        (EventManager.makeCustomEventName ("realtime:" ++ topic ++ ":joined"))
+        ignoredEventMsg
+        realtimeTopicJoinedDecoder
+        mapper
 
 
 onMessage : String -> (String -> msg) -> (RealtimeData -> msg) -> Sub msg
@@ -152,6 +171,13 @@ realtimeDecoder =
     JD.map2 RealtimeData
         (JD.maybe (JD.field "metadata" JD.value))
         (JD.field "event" (JD.oneOf [ JD.string |> JD.map eventDecoder, JD.succeed NoEvent ]))
+
+
+realtimeTopicJoinedDecoder : JD.Decoder RealtimeTopicJoined
+realtimeTopicJoinedDecoder =
+    JD.map2 RealtimeTopicJoined
+        (JD.field "success" JD.bool)
+        (JD.maybe (JD.field "error" JD.string))
 
 
 eventDecoder : String -> RealtimeEvent
