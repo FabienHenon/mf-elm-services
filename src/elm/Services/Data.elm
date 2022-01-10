@@ -6,19 +6,20 @@ import Json.Encode as JE
 import RemoteData
 
 
-payload : Maybe JE.Value -> String -> RemoteData.RemoteData Http.Error.RequestError a -> JE.Value
-payload resValue message res =
-    payloadWithHttpRequestId resValue message (res |> RemoteData.map (\v -> ( v, Nothing )))
+payload : Maybe JE.Value -> String -> Bool -> RemoteData.RemoteData Http.Error.RequestError a -> JE.Value
+payload resValue message fromRealtime res =
+    payloadWithHttpRequestId resValue message fromRealtime (res |> RemoteData.map (\v -> ( v, Nothing )))
 
 
-payloadWithHttpRequestId : Maybe JE.Value -> String -> RemoteData.RemoteData Http.Error.RequestError ( a, Maybe String ) -> JE.Value
-payloadWithHttpRequestId resValue message res =
+payloadWithHttpRequestId : Maybe JE.Value -> String -> Bool -> RemoteData.RemoteData Http.Error.RequestError ( a, Maybe String ) -> JE.Value
+payloadWithHttpRequestId resValue message fromRealtime res =
     case res of
         RemoteData.Success ( r, httpRequestId ) ->
             JE.object
                 [ ( "type", JE.string "success" )
                 , ( "message", JE.string message )
                 , ( "resource", resValue |> Maybe.withDefault JE.null )
+                , ( "fromRealtime", JE.bool fromRealtime )
                 , ( "httpRequestId", httpRequestId |> Maybe.map JE.string |> Maybe.withDefault JE.null )
                 ]
 
@@ -27,6 +28,7 @@ payloadWithHttpRequestId resValue message res =
                 ([ ( "type", JE.string "error" )
                  , ( "message", JE.string message )
                  , ( "resource", resValue |> Maybe.withDefault JE.null )
+                 , ( "fromRealtime", JE.bool fromRealtime )
                  ]
                     ++ (case err of
                             Http.Error.HttpError httpErr ->
