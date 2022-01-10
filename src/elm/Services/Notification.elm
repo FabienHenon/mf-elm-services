@@ -9,7 +9,7 @@ import Services.Data as Data
 notify : String -> RemoteData.RemoteData Http.Error.RequestError a -> Bool -> Cmd msg
 notify message res mustNotify =
     if mustNotify then
-        portNotify (Data.payload Nothing message res)
+        portNotify (Data.payload Nothing message False res)
 
     else
         Cmd.none
