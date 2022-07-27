@@ -1,8 +1,30 @@
 export const initMaestroPorts = (app, options) => {
+  const events = {
+    on:
+      options.events.on ||
+      function () {
+        console.log("Unset on event function");
+      },
+    once:
+      options.events.once ||
+      function () {
+        console.log("Unset once event function");
+      },
+    removeListener:
+      options.events.removeListener ||
+      function () {
+        console.log("Unset removeListener event function");
+      },
+    emit:
+      options.events.emit ||
+      function () {
+        console.log("Unset emit event function");
+      },
+  };
   // Listen to a maestro event
   app.ports.portAddEventListener &&
     app.ports.portAddEventListener.subscribe(function ({ eventName }) {
-      options.events.on(eventName, function (payload) {
+      events.on(eventName, function (payload) {
         app.ports.portEventReceived &&
           app.ports.portEventReceived.send({ eventName, payload });
       });
@@ -11,7 +33,7 @@ export const initMaestroPorts = (app, options) => {
   // Listen to a maestro event once
   app.ports.portAddEventListenerOnce &&
     app.ports.portAddEventListenerOnce.subscribe(function ({ eventName }) {
-      options.events.once(eventName, function (payload) {
+      events.once(eventName, function (payload) {
         app.ports.portEventReceived &&
           app.ports.portEventReceived.send({ eventName, payload });
       });
@@ -20,13 +42,13 @@ export const initMaestroPorts = (app, options) => {
   // Unlisten to a maestro event
   app.ports.portRemoveEventListener &&
     app.ports.portRemoveEventListener.subscribe(function ({ eventName }) {
-      options.events.removeListener(eventName, function () {});
+      events.removeListener(eventName, function () {});
     });
 
   // Emit an event to the maestro
   app.ports.portEmitEvent &&
     app.ports.portEmitEvent.subscribe(function ({ eventName, payload }) {
-      options.events.emit(eventName, payload);
+      events.emit(eventName, payload);
     });
 
   // Blocks the maestro navigation
