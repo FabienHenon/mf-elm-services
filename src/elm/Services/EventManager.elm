@@ -5,11 +5,13 @@ port module Services.EventManager exposing
     , Payload
     , StateName
     , emit
+    , emitWithAfterEvent
     , listen
     , listenOnce
     , makeCustomEventName
     , makeEventName
     , noPayload
+    , onEmitAfterEvent
     , onEvent
     , onEventWithoutPayload
     , removeListener
@@ -18,6 +20,7 @@ port module Services.EventManager exposing
 
 import Json.Decode as JD
 import Json.Encode as JE
+import Services.PortEventMsg as PortEventMsg
 
 
 type alias Config a =
@@ -74,6 +77,33 @@ emit (EventName eventName) (Payload payload) =
             , ( "payload", Maybe.withDefault (JE.object []) payload )
             ]
         )
+
+
+emitWithAfterEvent : PortEventMsg.PortEventMsg (String -> msg) -> (String -> msg) -> EventName -> Payload -> ( PortEventMsg.PortEventMsg (String -> msg), Cmd msg )
+emitWithAfterEvent storage afterEventMsg (EventName eventName) (Payload payload) =
+    let
+        ref =
+            JE.object
+                [ ( "eventName", JE.string eventName )
+                , ( "payload", Maybe.withDefault (JE.object []) payload )
+                ]
+                |> JE.encode 0
+
+        fullPayload =
+            JE.object
+                [ ( "eventName", JE.string eventName )
+                , ( "payload", Maybe.withDefault (JE.object []) payload )
+                , ( "ref", JE.string ref )
+                ]
+    in
+    ( PortEventMsg.addMsg ref afterEventMsg storage
+    , portEmitEvent fullPayload
+    )
+
+
+onEmitAfterEvent : PortEventMsg.PortEventMsg (String -> msg) -> (String -> msg) -> Sub msg
+onEmitAfterEvent storage ignoredEventMsg =
+    portEmitAfterEvent (fromEmitAfterEvent storage ignoredEventMsg)
 
 
 listen : EventName -> Cmd msg
@@ -134,11 +164,31 @@ fromEventWithoutPayload wantedEventName ignoredEventMsg eventMsg event =
                 ignoredEventMsg ("Bad event name " ++ wantedEventName ++ ", actual event name is " ++ eventName)
 
 
+fromEmitAfterEvent : PortEventMsg.PortEventMsg (String -> msg) -> (String -> msg) -> JE.Value -> msg
+fromEmitAfterEvent storage ignoredEventMsg event =
+    case JD.decodeValue eventRefDecoder event of
+        Err err ->
+            ignoredEventMsg ("Event decoder error : " ++ JD.errorToString err)
+
+        Ok ref ->
+            case storage |> PortEventMsg.getMsg ref of
+                Nothing ->
+                    ignoredEventMsg ("No msg stored with ref " ++ ref)
+
+                Just msg ->
+                    msg ref
+
+
 eventDecoder : JD.Decoder EventPayload
 eventDecoder =
     JD.map2 EventPayload
         (JD.field "eventName" JD.string)
         (JD.field "payload" JD.value)
+
+
+eventRefDecoder : JD.Decoder String
+eventRefDecoder =
+    JD.field "ref" JD.string
 
 
 
@@ -174,3 +224,10 @@ port portEventReceived : (JE.Value -> msg) -> Sub msg
 
 
 port portRemoveEventListener : JD.Value -> Cmd msg
+
+
+
+-- port to execute something ofter sending an event
+
+
+port portEmitAfterEvent : (JE.Value -> msg) -> Sub msg

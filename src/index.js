@@ -47,8 +47,13 @@ export const initMaestroPorts = (app, options) => {
 
   // Emit an event to the maestro
   app.ports.portEmitEvent &&
-    app.ports.portEmitEvent.subscribe(function ({ eventName, payload }) {
+    app.ports.portEmitEvent.subscribe(function ({ eventName, payload, ref }) {
       events.emit(eventName, payload);
+
+      if (typeof ref !== "undefined") {
+        app.ports.portEmitAfterEvent &&
+          app.ports.portEmitAfterEvent.send({ ref: ref });
+      }
     });
 
   // Blocks the maestro navigation
@@ -67,6 +72,23 @@ export const initMaestroPorts = (app, options) => {
   app.ports.portNotify &&
     app.ports.portNotify.subscribe(function (payload) {
       options.services.notify(payload);
+    });
+
+  // Get localstorage item
+  app.ports.portGetLocalStorageItem &&
+    app.ports.portGetLocalStorageItem.subscribe(function ({ key, ref }) {
+      const value = JSON.parse(localStorage.getItem(key));
+
+      if (typeof ref !== "undefined") {
+        app.ports.portLocalStorageAfterEvent &&
+          app.ports.portLocalStorageAfterEvent.send({ ref: ref, value: value });
+      }
+    });
+
+  // Set localstorage item
+  app.ports.portSetLocalStorageItem &&
+    app.ports.portSetLocalStorageItem.subscribe(function ({ key, value }) {
+      localStorage.setItem(key, JSON.stringify(value));
     });
 };
 
