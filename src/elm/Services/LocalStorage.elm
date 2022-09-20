@@ -26,7 +26,7 @@ getItem key =
         )
 
 
-getItemWithAfterEvent : PortEventMsg.PortEventMsg (String -> JE.Value -> msg) -> (String -> JE.Value -> msg) -> String -> ( PortEventMsg.PortEventMsg (String -> JE.Value -> msg), Cmd msg )
+getItemWithAfterEvent : PortEventMsg.PortEventMsg (JE.Value -> msg) -> (JE.Value -> msg) -> String -> ( PortEventMsg.PortEventMsg (JE.Value -> msg), Cmd msg )
 getItemWithAfterEvent storage afterEventMsg key =
     let
         ref =
@@ -46,9 +46,9 @@ getItemWithAfterEvent storage afterEventMsg key =
     )
 
 
-onItemAfterEvent : PortEventMsg.PortEventMsg (String -> JE.Value -> msg) -> (String -> msg) -> Sub msg
-onItemAfterEvent storage ignoredEventMsg =
-    portLocalStorageAfterEvent (fromItemAfterEvent storage ignoredEventMsg)
+onItemAfterEvent : (String -> msg) -> (String -> JE.Value -> msg) -> Sub msg
+onItemAfterEvent ignoredEventMsg destMsg =
+    portLocalStorageAfterEvent (fromItemAfterEvent ignoredEventMsg destMsg)
 
 
 setItem : String -> JE.Value -> Cmd msg
@@ -56,24 +56,19 @@ setItem key value =
     portSetLocalStorageItem
         (JE.object
             [ ( "key", JE.string key )
-            , ( "value", JE.value value )
+            , ( "value", value )
             ]
         )
 
 
-fromItemAfterEvent : PortEventMsg.PortEventMsg (String -> JE.Value -> msg) -> (String -> msg) -> JE.Value -> msg
-fromItemAfterEvent storage ignoredEventMsg event =
+fromItemAfterEvent : (String -> msg) -> (String -> JE.Value -> msg) -> JE.Value -> msg
+fromItemAfterEvent ignoredEventMsg destMsg event =
     case JD.decodeValue itemDecoder event of
         Err err ->
             ignoredEventMsg ("Event decoder error : " ++ JD.errorToString err)
 
         Ok { ref, value } ->
-            case storage |> PortEventMsg.getMsg ref of
-                Nothing ->
-                    ignoredEventMsg ("No msg stored with ref " ++ ref)
-
-                Just msg ->
-                    msg ref value
+            destMsg ref value
 
 
 itemDecoder : JD.Decoder StorageItem
