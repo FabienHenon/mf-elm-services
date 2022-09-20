@@ -18,10 +18,10 @@ port module Services.EventManager exposing
     , withPayload
     )
 
+import Dict
 import Json.Decode as JD
 import Json.Encode as JE
 import Services.PortEventMsg as PortEventMsg
-import Dict
 
 
 type alias Config a =
@@ -80,16 +80,9 @@ emit (EventName eventName) (Payload payload) =
         )
 
 
-emitWithAfterEvent : PortEventMsg.PortEventMsg msg -> msg -> EventName -> Payload -> ( PortEventMsg.PortEventMsg msg, Cmd msg )
-emitWithAfterEvent storage afterEventMsg (EventName eventName) (Payload payload) =
+emitWithAfterEvent : PortEventMsg.PortEventMsg msg -> String -> msg -> EventName -> Payload -> ( PortEventMsg.PortEventMsg msg, Cmd msg )
+emitWithAfterEvent storage ref afterEventMsg (EventName eventName) (Payload payload) =
     let
-        ref =
-            JE.object
-                [ ( "eventName", JE.string eventName )
-                , ( "payload", Maybe.withDefault (JE.object []) payload )
-                ]
-                |> JE.encode 0
-
         fullPayload =
             JE.object
                 [ ( "eventName", JE.string eventName )

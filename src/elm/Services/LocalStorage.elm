@@ -26,15 +26,9 @@ getItem key =
         )
 
 
-getItemWithAfterEvent : PortEventMsg.PortEventMsg (JE.Value -> msg) -> (JE.Value -> msg) -> String -> ( PortEventMsg.PortEventMsg (JE.Value -> msg), Cmd msg )
-getItemWithAfterEvent storage afterEventMsg key =
+getItemWithAfterEvent : PortEventMsg.PortEventMsg (JE.Value -> msg) -> String -> (JE.Value -> msg) -> String -> ( PortEventMsg.PortEventMsg (JE.Value -> msg), Cmd msg )
+getItemWithAfterEvent storage ref afterEventMsg key =
     let
-        ref =
-            JE.object
-                [ ( "key", JE.string key )
-                ]
-                |> JE.encode 0
-
         fullPayload =
             JE.object
                 [ ( "key", JE.string key )
