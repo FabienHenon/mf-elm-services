@@ -21,6 +21,7 @@ port module Services.EventManager exposing
 import Json.Decode as JD
 import Json.Encode as JE
 import Services.PortEventMsg as PortEventMsg
+import Dict
 
 
 type alias Config a =
@@ -79,7 +80,7 @@ emit (EventName eventName) (Payload payload) =
         )
 
 
-emitWithAfterEvent : PortEventMsg.PortEventMsg (String -> msg) -> (String -> msg) -> EventName -> Payload -> ( PortEventMsg.PortEventMsg (String -> msg), Cmd msg )
+emitWithAfterEvent : PortEventMsg.PortEventMsg msg -> msg -> EventName -> Payload -> ( PortEventMsg.PortEventMsg msg, Cmd msg )
 emitWithAfterEvent storage afterEventMsg (EventName eventName) (Payload payload) =
     let
         ref =
@@ -101,9 +102,9 @@ emitWithAfterEvent storage afterEventMsg (EventName eventName) (Payload payload)
     )
 
 
-onEmitAfterEvent : PortEventMsg.PortEventMsg (String -> msg) -> (String -> msg) -> Sub msg
-onEmitAfterEvent storage ignoredEventMsg =
-    portEmitAfterEvent (fromEmitAfterEvent storage ignoredEventMsg)
+onEmitAfterEvent : (String -> msg) -> (String -> msg) -> Sub msg
+onEmitAfterEvent ignoredEventMsg destMsg =
+    portEmitAfterEvent (fromEmitAfterEvent ignoredEventMsg destMsg)
 
 
 listen : EventName -> Cmd msg
@@ -164,19 +165,14 @@ fromEventWithoutPayload wantedEventName ignoredEventMsg eventMsg event =
                 ignoredEventMsg ("Bad event name " ++ wantedEventName ++ ", actual event name is " ++ eventName)
 
 
-fromEmitAfterEvent : PortEventMsg.PortEventMsg (String -> msg) -> (String -> msg) -> JE.Value -> msg
-fromEmitAfterEvent storage ignoredEventMsg event =
+fromEmitAfterEvent : (String -> msg) -> (String -> msg) -> JE.Value -> msg
+fromEmitAfterEvent ignoredEventMsg destMsg event =
     case JD.decodeValue eventRefDecoder event of
         Err err ->
             ignoredEventMsg ("Event decoder error : " ++ JD.errorToString err)
 
         Ok ref ->
-            case storage |> PortEventMsg.getMsg ref of
-                Nothing ->
-                    ignoredEventMsg ("No msg stored with ref " ++ ref)
-
-                Just msg ->
-                    msg ref
+            destMsg ref
 
 
 eventDecoder : JD.Decoder EventPayload
