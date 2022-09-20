@@ -74,8 +74,8 @@ fromItemAfterEvent ignoredEventMsg destMsg event =
 itemDecoder : JD.Decoder StorageItem
 itemDecoder =
     JD.map2 StorageItem
-        (JD.field "value" JD.value)
         (JD.field "ref" JD.string)
+        (JD.field "value" JD.value)
 
 
 
