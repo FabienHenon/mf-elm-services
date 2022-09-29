@@ -1,4 +1,4 @@
-port module Services.Notification exposing (notify)
+port module Services.Notification exposing (notify, notifyRaw)
 
 import Http.Error
 import Json.Encode as JE
@@ -13,6 +13,11 @@ notify message res mustNotify =
 
     else
         Cmd.none
+
+
+notifyRaw : JE.Value -> Cmd msg
+notifyRaw =
+    portNotify
 
 
 
