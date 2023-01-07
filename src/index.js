@@ -1,4 +1,4 @@
-export const initMaestroPorts = (app, options) => {
+export const initMaestroPorts = (app, options, customFunctions) => {
   const events = {
     on:
       options.events.on ||
@@ -89,6 +89,12 @@ export const initMaestroPorts = (app, options) => {
   app.ports.portSetLocalStorageItem &&
     app.ports.portSetLocalStorageItem.subscribe(function ({ key, value }) {
       localStorage.setItem(key, JSON.stringify(value));
+    });
+
+  // Exec script
+  app.ports.portExecScript &&
+    app.ports.portExecScript.subscribe(function ({ funcName, variables }) {
+      customFunctions[funcName] && customFunctions[funcName](variables);
     });
 };
 
